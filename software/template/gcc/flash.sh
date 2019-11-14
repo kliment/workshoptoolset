@@ -1,0 +1,1 @@
+~/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino16/bin/avrdude -C ~/.arduino15/packages/arduino/tools/avrdude/6.3.0-arduino16/etc/avrdude.conf -c xplainedmini_updi -pt816 -U flash:w:handpiece.hex:i

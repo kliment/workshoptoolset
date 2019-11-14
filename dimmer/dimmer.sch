@@ -1,0 +1,401 @@
+EESchema Schematic File Version 4
+LIBS:dimmer-cache
+EELAYER 29 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Connector:Barrel_Jack J1
+U 1 1 5D20569D
+P 2050 1850
+F 0 "J1" H 2107 2175 50  0000 C CNN
+F 1 "Barrel_Jack" H 2107 2084 50  0000 C CNN
+F 2 "Connector_BarrelJack:BarrelJack_Horizontal" H 2100 1810 50  0001 C CNN
+F 3 "~" H 2100 1810 50  0001 C CNN
+	1    2050 1850
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x03_Female J2
+U 1 1 5D205FA3
+P 3150 1100
+F 0 "J2" H 3178 1126 50  0000 L CNN
+F 1 "Conn_01x03_Female" H 3178 1035 50  0000 L CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_1x03_P2.54mm_Vertical" H 3150 1100 50  0001 C CNN
+F 3 "~" H 3150 1100 50  0001 C CNN
+	1    3150 1100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x03_Female J3
+U 1 1 5D20691E
+P 3550 1100
+F 0 "J3" H 3578 1126 50  0000 L CNN
+F 1 "Conn_01x03_Female" H 3578 1035 50  0000 L CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_1x03_P2.54mm_Vertical" H 3550 1100 50  0001 C CNN
+F 3 "~" H 3550 1100 50  0001 C CNN
+	1    3550 1100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x03_Female J4
+U 1 1 5D20698C
+P 3950 1100
+F 0 "J4" H 3978 1126 50  0000 L CNN
+F 1 "Conn_01x03_Female" H 3978 1035 50  0000 L CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_1x03_P2.54mm_Vertical" H 3950 1100 50  0001 C CNN
+F 3 "~" H 3950 1100 50  0001 C CNN
+	1    3950 1100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x03_Female J5
+U 1 1 5D206C2B
+P 4350 1100
+F 0 "J5" H 4378 1126 50  0000 L CNN
+F 1 "Conn_01x03_Female" H 4378 1035 50  0000 L CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_1x03_P2.54mm_Vertical" H 4350 1100 50  0001 C CNN
+F 3 "~" H 4350 1100 50  0001 C CNN
+	1    4350 1100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2350 1750 2350 1450
+Wire Wire Line
+	2350 1100 2400 1100
+Connection ~ 2950 1100
+Wire Wire Line
+	2950 1100 3350 1100
+Connection ~ 3350 1100
+Wire Wire Line
+	3350 1100 3750 1100
+Connection ~ 3750 1100
+Wire Wire Line
+	3750 1100 4150 1100
+Wire Wire Line
+	2950 1000 3350 1000
+Connection ~ 3350 1000
+Wire Wire Line
+	3350 1000 3750 1000
+Connection ~ 3750 1000
+Wire Wire Line
+	3750 1000 4150 1000
+Wire Wire Line
+	2950 1200 3350 1200
+Connection ~ 3350 1200
+Wire Wire Line
+	3350 1200 3750 1200
+Connection ~ 3750 1200
+Wire Wire Line
+	3750 1200 4150 1200
+Wire Wire Line
+	4150 1200 4800 1200
+Wire Wire Line
+	4800 1200 4800 1550
+Connection ~ 4150 1200
+Wire Wire Line
+	4150 1000 4800 1000
+Wire Wire Line
+	4800 1000 4800 1200
+Connection ~ 4150 1000
+Connection ~ 4800 1200
+$Comp
+L Transistor_FET:CSD19537Q3 Q1
+U 1 1 5D207C22
+P 4700 2050
+F 0 "Q1" H 4906 2096 50  0000 L CNN
+F 1 "CSD19537Q3" H 4906 2005 50  0000 L CNN
+F 2 "Package_SON:VSON-8_3.3x3.3mm_P0.65mm_NexFET" H 4900 1975 50  0001 L CIN
+F 3 "http://www.ti.com/lit/ds/symlink/csd19537q3.pdf" V 4700 2050 50  0001 L CNN
+	1    4700 2050
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:L L1
+U 1 1 5D208A50
+P 4800 1700
+F 0 "L1" H 4853 1746 50  0000 L CNN
+F 1 "L" H 4853 1655 50  0000 L CNN
+F 2 "corelib:INDUCTOR_2x1.6x1mm" H 4800 1700 50  0001 C CNN
+F 3 "~" H 4800 1700 50  0001 C CNN
+	1    4800 1700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R3
+U 1 1 5D208DC9
+P 4500 2200
+F 0 "R3" H 4570 2246 50  0000 L CNN
+F 1 "10k" H 4570 2155 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 4430 2200 50  0001 C CNN
+F 3 "~" H 4500 2200 50  0001 C CNN
+	1    4500 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R1
+U 1 1 5D208F5F
+P 4350 2050
+F 0 "R1" V 4143 2050 50  0000 C CNN
+F 1 "180R" V 4234 2050 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 4280 2050 50  0001 C CNN
+F 3 "~" H 4350 2050 50  0001 C CNN
+	1    4350 2050
+	0    1    1    0   
+$EndComp
+Connection ~ 4500 2050
+Wire Wire Line
+	4800 2250 4800 2350
+Wire Wire Line
+	4800 2350 4500 2350
+Wire Wire Line
+	4500 2350 2500 2350
+Wire Wire Line
+	2350 2350 2350 1950
+Connection ~ 4500 2350
+$Comp
+L Regulator_Linear:AP2204RA-5.0 U1
+U 1 1 5D20A802
+P 2800 1450
+F 0 "U1" H 2800 1692 50  0000 C CNN
+F 1 "AP2204RA-5.0" H 2800 1601 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-89-3" H 2800 1675 50  0001 C CNN
+F 3 "https://www.diodes.com/assets/Datasheets/AP2204.pdf" H 2800 1450 50  0001 C CNN
+	1    2800 1450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C1
+U 1 1 5D20B323
+P 2500 1600
+F 0 "C1" H 2615 1646 50  0000 L CNN
+F 1 "1u" H 2615 1555 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 2538 1450 50  0001 C CNN
+F 3 "~" H 2500 1600 50  0001 C CNN
+	1    2500 1600
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C3
+U 1 1 5D20B556
+P 3100 1600
+F 0 "C3" H 3215 1646 50  0000 L CNN
+F 1 "10u" H 3215 1555 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0402_1005Metric" H 3138 1450 50  0001 C CNN
+F 3 "~" H 3100 1600 50  0001 C CNN
+	1    3100 1600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3100 1750 2800 1750
+Wire Wire Line
+	2500 1750 2500 2350
+Connection ~ 2500 1750
+Connection ~ 2800 1750
+Wire Wire Line
+	2800 1750 2500 1750
+Connection ~ 2500 2350
+Wire Wire Line
+	2500 2350 2400 2350
+$Comp
+L power:GND #PWR0101
+U 1 1 5D20BB8E
+P 2500 2350
+F 0 "#PWR0101" H 2500 2100 50  0001 C CNN
+F 1 "GND" H 2505 2177 50  0000 C CNN
+F 2 "" H 2500 2350 50  0001 C CNN
+F 3 "" H 2500 2350 50  0001 C CNN
+	1    2500 2350
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:PWR_FLAG #FLG0101
+U 1 1 5D20BD66
+P 2400 2350
+F 0 "#FLG0101" H 2400 2425 50  0001 C CNN
+F 1 "PWR_FLAG" H 2400 2523 50  0000 C CNN
+F 2 "" H 2400 2350 50  0001 C CNN
+F 3 "~" H 2400 2350 50  0001 C CNN
+	1    2400 2350
+	1    0    0    -1  
+$EndComp
+Connection ~ 2400 2350
+Wire Wire Line
+	2400 2350 2350 2350
+$Comp
+L power:PWR_FLAG #FLG0102
+U 1 1 5D20BFC2
+P 2400 1100
+F 0 "#FLG0102" H 2400 1175 50  0001 C CNN
+F 1 "PWR_FLAG" H 2400 1273 50  0000 C CNN
+F 2 "" H 2400 1100 50  0001 C CNN
+F 3 "~" H 2400 1100 50  0001 C CNN
+	1    2400 1100
+	1    0    0    -1  
+$EndComp
+Connection ~ 2400 1100
+Wire Wire Line
+	2400 1100 2950 1100
+$Comp
+L Timer:TLC555CPS U2
+U 1 1 5D20C321
+P 3650 3000
+F 0 "U2" H 3650 3581 50  0000 C CNN
+F 1 "TLC555CPS" H 3650 3490 50  0000 C CNN
+F 2 "Package_SO:TSSOP-8_3x3mm_P0.65mm" H 3650 3000 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tlc555.pdf" H 3650 3000 50  0001 C CNN
+	1    3650 3000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4150 2800 4150 2050
+Wire Wire Line
+	4150 2050 4200 2050
+Wire Wire Line
+	3650 2600 3650 2500
+Wire Wire Line
+	3650 1450 3100 1450
+Connection ~ 3100 1450
+Wire Wire Line
+	3150 3200 3000 3200
+Wire Wire Line
+	3000 3200 3000 2600
+Wire Wire Line
+	3000 2600 3650 2600
+Connection ~ 3650 2600
+$Comp
+L Device:C C2
+U 1 1 5D20FE5C
+P 2800 3150
+F 0 "C2" H 2915 3196 50  0000 L CNN
+F 1 "100n" H 2915 3105 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0402_1005Metric" H 2838 3000 50  0001 C CNN
+F 3 "~" H 2800 3150 50  0001 C CNN
+	1    2800 3150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3150 3000 2800 3000
+Wire Wire Line
+	2800 3300 2800 3400
+Wire Wire Line
+	2800 3400 3650 3400
+$Comp
+L power:GND #PWR0102
+U 1 1 5D211439
+P 2800 3400
+F 0 "#PWR0102" H 2800 3150 50  0001 C CNN
+F 1 "GND" H 2805 3227 50  0000 C CNN
+F 2 "" H 2800 3400 50  0001 C CNN
+F 3 "" H 2800 3400 50  0001 C CNN
+	1    2800 3400
+	1    0    0    -1  
+$EndComp
+Connection ~ 2800 3400
+$Comp
+L Device:R R2
+U 1 1 5D211671
+P 4400 2650
+F 0 "R2" H 4470 2696 50  0000 L CNN
+F 1 "180R" H 4470 2605 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 4330 2650 50  0001 C CNN
+F 3 "~" H 4400 2650 50  0001 C CNN
+	1    4400 2650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4400 2500 3650 2500
+Connection ~ 3650 2500
+Wire Wire Line
+	3650 2500 3650 1450
+Wire Wire Line
+	4150 3000 4400 3000
+Wire Wire Line
+	4400 3000 4400 2850
+$Comp
+L Device:R_POT RV1
+U 1 1 5D212F98
+P 4550 3200
+F 0 "RV1" H 4480 3154 50  0000 R CNN
+F 1 "R_POT" H 4480 3245 50  0000 R CNN
+F 2 "corelib:ALPS-RS08U" H 4550 3200 50  0001 C CNN
+F 3 "~" H 4550 3200 50  0001 C CNN
+	1    4550 3200
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	4400 3200 4250 3200
+$Comp
+L Device:C C4
+U 1 1 5D214270
+P 4250 3350
+F 0 "C4" H 4365 3396 50  0000 L CNN
+F 1 "100n" H 4365 3305 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0402_1005Metric" H 4288 3200 50  0001 C CNN
+F 3 "~" H 4250 3350 50  0001 C CNN
+	1    4250 3350
+	1    0    0    -1  
+$EndComp
+Connection ~ 4250 3200
+Wire Wire Line
+	4250 3200 4150 3200
+Wire Wire Line
+	4250 3500 3650 3500
+Wire Wire Line
+	3650 3500 3650 3400
+Connection ~ 3650 3400
+$Comp
+L Device:D D2
+U 1 1 5D215386
+P 4700 3350
+F 0 "D2" H 4700 3566 50  0000 C CNN
+F 1 "D" H 4700 3475 50  0000 C CNN
+F 2 "Diode_SMD:D_SOD-523" H 4700 3350 50  0001 C CNN
+F 3 "~" H 4700 3350 50  0001 C CNN
+	1    4700 3350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:D D1
+U 1 1 5D2157B8
+P 4700 3050
+F 0 "D1" H 4700 2834 50  0000 C CNN
+F 1 "D" H 4700 2925 50  0000 C CNN
+F 2 "Diode_SMD:D_SOD-523" H 4700 3050 50  0001 C CNN
+F 3 "~" H 4700 3050 50  0001 C CNN
+	1    4700 3050
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	4850 3350 4850 3050
+Wire Wire Line
+	4850 2850 4400 2850
+Connection ~ 4850 3050
+Wire Wire Line
+	4850 3050 4850 2850
+Connection ~ 4400 2850
+Wire Wire Line
+	4400 2850 4400 2800
+Text Label 4250 3200 0    50   ~ 0
+THR
+Text Label 3050 2800 0    50   ~ 0
+THR
+Wire Wire Line
+	3050 2800 3150 2800
+Wire Wire Line
+	2500 1450 2350 1450
+Connection ~ 2500 1450
+Connection ~ 2350 1450
+Wire Wire Line
+	2350 1450 2350 1100
+$EndSCHEMATC

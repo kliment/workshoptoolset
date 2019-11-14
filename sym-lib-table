@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name handpiece-rescue)(type Legacy)(uri ${KIPRJMOD}/handpiece-rescue.lib)(options "")(descr ""))
+)

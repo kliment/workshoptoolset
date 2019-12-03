@@ -4,26 +4,30 @@
 #include <ccp.h>
 #include "config.h"
 
-volatile int duty = 0;
+volatile uint8_t duty = 0;
 
 volatile uint16_t temp  = 0;
 volatile uint16_t atemp = 0;
+
+#ifdef PID
 REAL total_error = 0, prev_error = 0;
-volatile int setpoint    = 0;
-volatile int oldsetpoint = 0;
-volatile int maxduty     = 60;
-volatile int deftemp     = 320;
-volatile int idlesecs    = 120;
-volatile int offmins     = 5;
-volatile int offsettemp  = 0;
+#endif
 
-volatile int btnflag   = 0;
-volatile int vibrflag  = 0;
-volatile int btnignore = 0;
+volatile uint16_t setpoint    = 0;
+volatile uint16_t oldsetpoint = 0;
+volatile uint8_t maxduty      = 60;
+volatile uint16_t deftemp     = 320;
+volatile uint16_t idlesecs    = 120;
+volatile uint8_t offmins      = 5;
+volatile int offsettemp       = 0;
 
-volatile uint16_t cycles  = 0;
+volatile uint8_t btnflag   = 0;
+volatile uint8_t vibrflag  = 0;
+volatile uint8_t btnignore = 0;
+
+volatile uint8_t cycles   = 0;
 volatile uint16_t seconds = 0;
-volatile uint16_t minutes = 0;
+volatile uint8_t minutes  = 0;
 
 volatile uint8_t datareg[9] = {0};
 //[0] - curtemp C/2 (ro)
@@ -36,7 +40,7 @@ volatile uint8_t datareg[9] = {0};
 //[7] - offmins (min)
 //[8] - tempoffset (127=0)
 
-int standby = 0;  // 0=off/heating/hot/cooling, 1=standby, vibration wake
+uint8_t standby = 0;  // 0=off/heating/hot/cooling, 1=standby, vibration wake
 
 static uint8_t FLASH_0_read_eeprom_byte(uint16_t eeprom_adr) {
   return *(uint8_t *)(EEPROM_START + eeprom_adr);
@@ -86,20 +90,19 @@ void pid_harder() {
   }
 
   int32_t error = setpoint - temp;
+  int32_t pduty = Kp * error;
+
+#ifdef PID
   total_error += error;
   if (total_error > maxduty * 1.0f)
     total_error = maxduty * 1.0f;
   else if (total_error < 0.0f)
     total_error = 0.0f;
 
-  int32_t pduty =
-      Kp * error;
-
-#ifdef PID
   double delta_error = error - prev_error;
-  prev_error = error;
+  prev_error         = error;
 
-  pduty += (Ki*100.0)*total_error + (Kd/100.0)*delta_error;
+  pduty += (Ki * 100.0) * total_error + (Kd / 100.0) * delta_error;
 #endif
 
   if (pduty > maxduty)
@@ -107,7 +110,7 @@ void pid_harder() {
   else if (pduty < 0)
     pduty = 0;
 
-  duty       = pduty;
+  duty = pduty;
 }
 
 int main(void) {
@@ -139,24 +142,23 @@ int main(void) {
   datareg[7] = offmins;
   datareg[8] = 127 + offsettemp;
   atmel_start_init();
-  PORTC.DIRSET = 1;
-  PORTC.DIRSET = 2;
-  PORTC.OUTSET = 1;
-  PORTC.OUTSET = 2;
+  SET_DIR(HOT_LED);
+  SET_DIR(HEATING_LED);
+  SET_PIN(HOT_LED);
+  SET_PIN(HEATING_LED);
   sei();
   ADC_0_enable();
   I2C_0_open();
 
   while (1) {
-    // temp++;
     calctemp(ADC_0_get_conversion(ADC_MUXPOS_TEMPSENSE_gc) >> 5);
     temp = ((int)(1.00 * (ADC_0_get_conversion(6) >> 5))) + atemp;
     if (temp > 55) {
-      PORTC.OUTSET = 1;
+      SET_PIN(HOT_LED);
     } else {
-      PORTC.OUTCLR = 1;
+      CLR_PIN(HOT_LED);
     }
-    PORTC.OUTCLR = 2;
+    CLR_PIN(HEATING_LED);
 
     if (btnignore) {
       btnignore--;
@@ -164,14 +166,16 @@ int main(void) {
     } else if (btnflag) {
       // not ignoring button, first click event:
       if (setpoint > 0) {
+        // power off on button press, store current setpoint
         oldsetpoint = setpoint;
-        setpoint    = 0;  // power off on button press
+        setpoint    = 0;
         standby     = 0;
       } else {
+        // enable power, restore setpoint or use default
         if (oldsetpoint) {
           setpoint = oldsetpoint;
         } else {
-          setpoint = deftemp;  // power on on button press
+          setpoint = deftemp;
         }
         standby = 0;
       }
@@ -181,13 +185,13 @@ int main(void) {
     if (setpoint && temp < setpoint - 15) {
       // blink white while heating
       if (cycles > 4) {
-        PORTC.OUTSET = 2;
+        SET_PIN(HEATING_LED);
       } else {
-        PORTC.OUTCLR = 2;
+        CLR_PIN(HEATING_LED);
       }
     }
     if (setpoint && temp >= setpoint - 15) {
-      PORTC.OUTSET = 2;
+      SET_PIN(HEATING_LED);
     }
     if (setpoint) {
       pid_harder();
@@ -204,7 +208,7 @@ int main(void) {
     datareg[1] = (atemp >> 1) & 0x1f;
     datareg[2] = duty;
     datareg[3] = (setpoint >> 1) & 0xff;
-    _delay_ms(100 - (duty > MAX_DUTY_CYCLE ? MAX_DUTY_CYCLE : duty));
+    _delay_ms(100u - duty);
     cycles++;
     if (cycles == 10) {
       seconds++;
@@ -216,12 +220,8 @@ int main(void) {
       cycles = 0;
       if (seconds % 60 == 0) {
         minutes++;
-        if (idlesecs == 0) {
+        if (idlesecs == 0 || seconds > idlesecs) {
           seconds = 0;
-        } else {
-          if (seconds > idlesecs) {
-            seconds = 0;
-          }
         }
         if (offmins) {
           if (minutes > offmins) {
@@ -241,7 +241,7 @@ int main(void) {
         setpoint = oldsetpoint;
         standby  = 0;
       } else if (!setpoint) {
-        PORTC.OUTSET = 2;
+        SET_PIN(HEATING_LED);
       } else {
         seconds = 0;
         minutes = 0;

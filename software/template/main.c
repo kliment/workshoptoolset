@@ -105,10 +105,12 @@ void pid_harder() {
   pduty += (Ki * 100.0) * total_error + (Kd / 100.0) * delta_error;
 #endif
 
-  if (pduty > maxduty)
+  if (pduty > maxduty) {
     pduty = maxduty;
-  else if (pduty < 0)
+  }
+  else if (pduty < 0) {
     pduty = 0;
+  }
 
   duty = pduty;
 }
@@ -195,6 +197,9 @@ int main(void) {
     }
     if (setpoint) {
       pid_harder();
+      if(duty > MAX_DUTY_CYCLE) {
+        duty = MAX_DUTY_CYCLE;
+      }
     } else {
       duty = 0;
     }

@@ -217,37 +217,57 @@ int main(void) {
     cycles++;
     if (cycles == 10) {
       seconds++;
+
+      // If idle-off is activated and the timeout is reached,
+      // disable heating and set standby
       if (idlesecs && seconds >= idlesecs) {
         oldsetpoint = setpoint;
         setpoint    = 0;
         standby     = 1;
       }
+
+      // Reset 100ms counter
       cycles = 0;
       if (seconds % 60 == 0) {
         minutes++;
+
+        // If idle-off is not activated or we reached it,
+        // we can reset the counter
         if (idlesecs == 0 || seconds > idlesecs) {
           seconds = 0;
         }
+
+        // If we turn off after some time
         if (offmins) {
+          // Check minutes against the timeout
           if (minutes > offmins) {
+            // If it's reached, disable heating without setting standby
             oldsetpoint = setpoint;
             setpoint    = 0;
             standby     = 0;
             minutes     = 0;
           }
         } else {
+          // Discard the minutes counter
           minutes = 0;
         }
       }
     }
+
+    // Check for vibration
     if (vibrflag) {
       vibrflag = 0;
+
       if (standby && !setpoint && oldsetpoint) {
+        // standby is active and we can change back to a setpoint,
+        // so do that
         setpoint = oldsetpoint;
         standby  = 0;
       } else if (!setpoint) {
+        // Turned off or no previous setpoint: Just flash once
         SET_PIN(HEATING_LED);
       } else {
+        // just reset the counters
         seconds = 0;
         minutes = 0;
       }

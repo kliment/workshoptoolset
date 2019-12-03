@@ -6,11 +6,9 @@
 
 volatile int duty = 0;
 
-
-
 volatile uint16_t temp  = 0;
 volatile uint16_t atemp = 0;
-double total_error = 0, prev_error = 0;
+REAL total_error = 0, prev_error = 0;
 volatile int setpoint    = 0;
 volatile int oldsetpoint = 0;
 volatile int maxduty     = 60;
@@ -18,10 +16,6 @@ volatile int deftemp     = 320;
 volatile int idlesecs    = 120;
 volatile int offmins     = 5;
 volatile int offsettemp  = 0;
-// int Kp=10;
-double Kp = 10.0;
-double Ki = 0.0;
-double Kd = 0.5;
 
 volatile int btnflag   = 0;
 volatile int vibrflag  = 0;
@@ -90,21 +84,30 @@ void pid_harder() {
     duty = 0;
     return;
   }
+
   int32_t error = setpoint - temp;
   total_error += error;
-  if (total_error > maxduty * 1.0)
-    total_error = maxduty * 1.0;
-  else if (total_error < 0.0)
-    total_error = 0.0;
-  double delta_error = error - prev_error;
+  if (total_error > maxduty * 1.0f)
+    total_error = maxduty * 1.0f;
+  else if (total_error < 0.0f)
+    total_error = 0.0f;
+
   int32_t pduty =
-      Kp * error;  // + (Ki*100.0)*total_error + (Kd/100.0)*delta_error; //PID control compute
+      Kp * error;
+
+#ifdef PID
+  double delta_error = error - prev_error;
+  prev_error = error;
+
+  pduty += (Ki*100.0)*total_error + (Kd/100.0)*delta_error;
+#endif
+
   if (pduty > maxduty)
     pduty = maxduty;
   else if (pduty < 0)
     pduty = 0;
+
   duty       = pduty;
-  prev_error = error;
 }
 
 int main(void) {

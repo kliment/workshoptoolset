@@ -2,8 +2,11 @@
 #define __DELAY_BACKWARD_COMPATIBLE__
 #include <util/delay.h>
 #include <ccp.h>
+#include "config.h"
 
 volatile int duty = 0;
+
+
 
 volatile uint16_t temp  = 0;
 volatile uint16_t atemp = 0;
@@ -198,7 +201,7 @@ int main(void) {
     datareg[1] = (atemp >> 1) & 0x1f;
     datareg[2] = duty;
     datareg[3] = (setpoint >> 1) & 0xff;
-    _delay_ms(100 - (duty > 90 ? 90 : duty));
+    _delay_ms(100 - (duty > MAX_DUTY_CYCLE ? MAX_DUTY_CYCLE : duty));
     cycles++;
     if (cycles == 10) {
       seconds++;

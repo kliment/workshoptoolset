@@ -38,6 +38,8 @@
 #include <i2c_slave.h>
 #include <driver_init.h>
 #include <stdbool.h>
+#include "../config.h"
+
 // uint8_t FLASH_0_read_eeprom_byte(uint16_t eeprom_adr);
 // void FLASH_0_write_eeprom_byte(uint16_t eeprom_adr, uint8_t data);
 void updateeeprom(uint16_t addr, uint8_t val);
@@ -223,7 +225,7 @@ static inline void TWI_SlaveReadHandler() {
       }
     } else if (recv == 2) {
       // setting maxpower
-      if (data < 90) {
+      if (data < MAX_DUTY_CYCLE) {
         datareg[4] = data;
         maxduty    = data;
         updateeeprom(1, data);

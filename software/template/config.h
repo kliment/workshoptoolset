@@ -1,6 +1,8 @@
 // Type to use for duty cycle calculations. Change this to float if you want to
 // use a PID or non-integral P-values.
 typedef int32_t REAL;
+
+// Maximum allowed duty cycle. Do not set this to more than 100!
 static const uint8_t MAX_DUTY_CYCLE = 90u;
 
 // If defined, use a PID

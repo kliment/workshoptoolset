@@ -1,0 +1,397 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L corelib:AL8860WT-7 U2
+U 1 1 5DD9903B
+P 4300 3450
+F 0 "U2" H 4250 3931 50  0000 C CNN
+F 1 "AL8860WT-7" H 4250 3840 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:TSOT-23-5" H 4300 3450 50  0001 C CNN
+F 3 "https://datasheet.lcsc.com/szlcsc/1810010121_Diodes-Incorporated-AL8860WT-7_C125330.pdf" H 4300 3450 50  0001 C CNN
+	1    4300 3450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R2
+U 1 1 5DD9946A
+P 4550 3150
+F 0 "R2" H 4620 3196 50  0000 L CNN
+F 1 "R" H 4620 3105 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric" V 4480 3150 50  0001 C CNN
+F 3 "~" H 4550 3150 50  0001 C CNN
+	1    4550 3150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:D_Schottky D1
+U 1 1 5DD9994F
+P 4700 2850
+F 0 "D1" H 4700 3066 50  0000 C CNN
+F 1 "D_Schottky" H 4700 2975 50  0000 C CNN
+F 2 "Diode_SMD:D_SMA" H 4700 2850 50  0001 C CNN
+F 3 "~" H 4700 2850 50  0001 C CNN
+	1    4700 2850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4550 2850 4150 2850
+Wire Wire Line
+	4150 2850 4150 3150
+Wire Wire Line
+	4550 3000 4550 2850
+Connection ~ 4550 2850
+Connection ~ 4550 3300
+Wire Wire Line
+	4550 3450 4850 3450
+Wire Wire Line
+	4850 3450 4850 2850
+$Comp
+L Device:L L1
+U 1 1 5DD9ACFF
+P 5000 3450
+F 0 "L1" V 4819 3450 50  0000 C CNN
+F 1 "L" V 4910 3450 50  0000 C CNN
+F 2 "Inductor_SMD:L_6.3x6.3_H3" H 5000 3450 50  0001 C CNN
+F 3 "~" H 5000 3450 50  0001 C CNN
+	1    5000 3450
+	0    1    1    0   
+$EndComp
+Connection ~ 4850 3450
+Wire Wire Line
+	4150 2850 3200 2850
+Wire Wire Line
+	2450 2850 2450 3050
+Connection ~ 4150 2850
+$Comp
+L power:GND #PWR01
+U 1 1 5DD9DE9C
+P 2750 3350
+F 0 "#PWR01" H 2750 3100 50  0001 C CNN
+F 1 "GND" H 2755 3177 50  0000 C CNN
+F 2 "" H 2750 3350 50  0001 C CNN
+F 3 "" H 2750 3350 50  0001 C CNN
+	1    2750 3350
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR02
+U 1 1 5DD9DF29
+P 4350 3800
+F 0 "#PWR02" H 4350 3550 50  0001 C CNN
+F 1 "GND" H 4355 3627 50  0000 C CNN
+F 2 "" H 4350 3800 50  0001 C CNN
+F 3 "" H 4350 3800 50  0001 C CNN
+	1    4350 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_POT RV1
+U 1 1 5DD9E0B1
+P 3700 3500
+F 0 "RV1" H 3631 3546 50  0000 R CNN
+F 1 "R_POT" H 3631 3455 50  0000 R CNN
+F 2 "corelib:ALPS-RS08U" H 3700 3500 50  0001 C CNN
+F 3 "~" H 3700 3500 50  0001 C CNN
+	1    3700 3500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3950 3500 3850 3500
+Wire Wire Line
+	4350 3800 3700 3800
+Wire Wire Line
+	3700 3800 3700 3650
+Connection ~ 4350 3800
+$Comp
+L Device:R R1
+U 1 1 5DD9EAC7
+P 3700 3200
+F 0 "R1" H 3770 3246 50  0000 L CNN
+F 1 "R" H 3770 3155 50  0000 L CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 3630 3200 50  0001 C CNN
+F 3 "~" H 3700 3200 50  0001 C CNN
+	1    3700 3200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3700 3050 3350 3050
+$Comp
+L Device:C C2
+U 1 1 5DD9EF5F
+P 3200 3000
+F 0 "C2" H 3315 3046 50  0000 L CNN
+F 1 "C" H 3315 2955 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 3238 2850 50  0001 C CNN
+F 3 "~" H 3200 3000 50  0001 C CNN
+	1    3200 3000
+	1    0    0    -1  
+$EndComp
+Connection ~ 3200 2850
+Wire Wire Line
+	3200 2850 2450 2850
+$Comp
+L Device:C C3
+U 1 1 5DD9F298
+P 3350 3200
+F 0 "C3" H 3465 3246 50  0000 L CNN
+F 1 "C" H 3465 3155 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 3388 3050 50  0001 C CNN
+F 3 "~" H 3350 3200 50  0001 C CNN
+	1    3350 3200
+	1    0    0    -1  
+$EndComp
+Connection ~ 3350 3050
+Wire Wire Line
+	3350 3050 3050 3050
+$Comp
+L Device:C C1
+U 1 1 5DD9F4FB
+P 2250 3000
+F 0 "C1" H 2365 3046 50  0000 L CNN
+F 1 "C" H 2365 2955 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 2288 2850 50  0001 C CNN
+F 3 "~" H 2250 3000 50  0001 C CNN
+	1    2250 3000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2450 2850 2250 2850
+Connection ~ 2450 2850
+Wire Wire Line
+	2750 3350 3200 3350
+Connection ~ 2750 3350
+Wire Wire Line
+	3200 3150 3200 3350
+Connection ~ 3200 3350
+Wire Wire Line
+	3200 3350 3350 3350
+Wire Wire Line
+	2750 3350 2250 3350
+Wire Wire Line
+	2250 3350 2250 3150
+$Comp
+L Connector:Barrel_Jack J1
+U 1 1 5DDA0606
+P 1600 2950
+F 0 "J1" H 1657 3275 50  0000 C CNN
+F 1 "Barrel_Jack" H 1657 3184 50  0000 C CNN
+F 2 "Connector_BarrelJack:BarrelJack_Horizontal" H 1650 2910 50  0001 C CNN
+F 3 "~" H 1650 2910 50  0001 C CNN
+	1    1600 2950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1900 2850 2100 2850
+Connection ~ 2250 2850
+Wire Wire Line
+	2250 3350 2100 3350
+Wire Wire Line
+	1900 3350 1900 3050
+Connection ~ 2250 3350
+$Comp
+L corelib:AL8860WT-7 U3
+U 1 1 5DDA134B
+P 4300 4650
+F 0 "U3" H 4250 5131 50  0000 C CNN
+F 1 "AL8860WT-7" H 4250 5040 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:TSOT-23-5" H 4300 4650 50  0001 C CNN
+F 3 "https://datasheet.lcsc.com/szlcsc/1810010121_Diodes-Incorporated-AL8860WT-7_C125330.pdf" H 4300 4650 50  0001 C CNN
+	1    4300 4650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3850 3500 3850 4700
+Wire Wire Line
+	3850 4700 3950 4700
+Connection ~ 3850 3500
+$Comp
+L power:GND #PWR03
+U 1 1 5DDA1E74
+P 4350 5000
+F 0 "#PWR03" H 4350 4750 50  0001 C CNN
+F 1 "GND" H 4355 4827 50  0000 C CNN
+F 2 "" H 4350 5000 50  0001 C CNN
+F 3 "" H 4350 5000 50  0001 C CNN
+	1    4350 5000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4150 3150 4150 3900
+Connection ~ 4150 3150
+$Comp
+L Device:R R3
+U 1 1 5DDA260C
+P 4550 4350
+F 0 "R3" H 4620 4396 50  0000 L CNN
+F 1 "R" H 4620 4305 50  0000 L CNN
+F 2 "Resistor_SMD:R_1206_3216Metric" V 4480 4350 50  0001 C CNN
+F 3 "~" H 4550 4350 50  0001 C CNN
+	1    4550 4350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:D_Schottky D2
+U 1 1 5DDA27CD
+P 4700 4100
+F 0 "D2" H 4700 4316 50  0000 C CNN
+F 1 "D_Schottky" H 4700 4225 50  0000 C CNN
+F 2 "Diode_SMD:D_SMA" H 4700 4100 50  0001 C CNN
+F 3 "~" H 4700 4100 50  0001 C CNN
+	1    4700 4100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:L L2
+U 1 1 5DDA2AAD
+P 5000 4650
+F 0 "L2" V 4819 4650 50  0000 C CNN
+F 1 "L" V 4910 4650 50  0000 C CNN
+F 2 "Inductor_SMD:L_6.3x6.3_H3" H 5000 4650 50  0001 C CNN
+F 3 "~" H 5000 4650 50  0001 C CNN
+	1    5000 4650
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4550 4650 4850 4650
+Wire Wire Line
+	4850 4100 4850 4650
+Connection ~ 4850 4650
+Wire Wire Line
+	4550 4500 5250 4500
+Connection ~ 4550 4500
+Wire Wire Line
+	4550 4200 4550 4100
+Wire Wire Line
+	4550 4100 4150 4100
+Connection ~ 4550 4100
+Connection ~ 4150 4100
+Wire Wire Line
+	4150 4100 4150 4350
+$Comp
+L Connector:Conn_01x03_Male J2
+U 1 1 5DDA5897
+P 5650 3450
+F 0 "J2" H 5622 3382 50  0000 R CNN
+F 1 "Conn_01x03_Male" H 5622 3473 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 5650 3450 50  0001 C CNN
+F 3 "~" H 5650 3450 50  0001 C CNN
+	1    5650 3450
+	-1   0    0    1   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J3
+U 1 1 5DDA5D61
+P 5700 4650
+F 0 "J3" H 5672 4582 50  0000 R CNN
+F 1 "Conn_01x03_Male" H 5672 4673 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 5700 4650 50  0001 C CNN
+F 3 "~" H 5700 4650 50  0001 C CNN
+	1    5700 4650
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5150 4650 5500 4650
+Wire Wire Line
+	5500 4550 5400 4550
+Wire Wire Line
+	5250 4550 5250 4500
+Wire Wire Line
+	5500 4750 5400 4750
+Wire Wire Line
+	5400 4750 5400 4550
+Connection ~ 5400 4550
+Wire Wire Line
+	5400 4550 5250 4550
+Wire Wire Line
+	5150 3450 5450 3450
+Wire Wire Line
+	5450 3550 5350 3550
+Wire Wire Line
+	5350 3550 5350 3350
+Wire Wire Line
+	4550 3300 5350 3300
+Wire Wire Line
+	5450 3350 5350 3350
+Connection ~ 5350 3350
+Wire Wire Line
+	5350 3350 5350 3300
+$Comp
+L power:PWR_FLAG #FLG0101
+U 1 1 5DDA97A0
+P 2100 2850
+F 0 "#FLG0101" H 2100 2925 50  0001 C CNN
+F 1 "PWR_FLAG" H 2100 3023 50  0000 C CNN
+F 2 "" H 2100 2850 50  0001 C CNN
+F 3 "~" H 2100 2850 50  0001 C CNN
+	1    2100 2850
+	1    0    0    -1  
+$EndComp
+Connection ~ 2100 2850
+Wire Wire Line
+	2100 2850 2250 2850
+$Comp
+L power:PWR_FLAG #FLG0102
+U 1 1 5DDA97F3
+P 2100 3350
+F 0 "#FLG0102" H 2100 3425 50  0001 C CNN
+F 1 "PWR_FLAG" H 2100 3523 50  0000 C CNN
+F 2 "" H 2100 3350 50  0001 C CNN
+F 3 "~" H 2100 3350 50  0001 C CNN
+	1    2100 3350
+	1    0    0    -1  
+$EndComp
+Connection ~ 2100 3350
+Wire Wire Line
+	2100 3350 1900 3350
+$Comp
+L Device:C C4
+U 1 1 5DDB3C68
+P 4000 4050
+F 0 "C4" H 4115 4096 50  0000 L CNN
+F 1 "C" H 4115 4005 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 4038 3900 50  0001 C CNN
+F 3 "~" H 4000 4050 50  0001 C CNN
+	1    4000 4050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4000 3900 4150 3900
+Connection ~ 4150 3900
+Wire Wire Line
+	4150 3900 4150 4100
+$Comp
+L power:GND #PWR0101
+U 1 1 5DDB4C61
+P 4000 4200
+F 0 "#PWR0101" H 4000 3950 50  0001 C CNN
+F 1 "GND" H 4005 4027 50  0000 C CNN
+F 2 "" H 4000 4200 50  0001 C CNN
+F 3 "" H 4000 4200 50  0001 C CNN
+	1    4000 4200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Regulator_Linear:L78L33_SOT89 U?
+U 1 1 5DDCF72B
+P 2750 3050
+F 0 "U?" H 2750 3292 50  0000 C CNN
+F 1 "L78L33_SOT89" H 2750 3201 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-89-3" H 2750 3250 50  0001 C CIN
+F 3 "http://www.st.com/content/ccc/resource/technical/document/datasheet/15/55/e5/aa/23/5b/43/fd/CD00000446.pdf/files/CD00000446.pdf/jcr:content/translations/en.CD00000446.pdf" H 2750 3000 50  0001 C CNN
+	1    2750 3050
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC

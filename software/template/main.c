@@ -173,10 +173,10 @@ int main(void) {
     datareg[7] = offmins;
     datareg[8] = 127 + offsettemp;
     atmel_start_init();
-    SET_DIR(HOT_LED);
-    SET_DIR(HEATING_LED);
-    SET_PIN(HOT_LED);
-    SET_PIN(HEATING_LED);
+    SET_DIR(RED_LED);
+    SET_DIR(WHITE_LED);
+    SET_PIN(RED_LED);
+    SET_PIN(WHITE_LED);
     sei();
     ADC_0_enable();
     I2C_0_open();
@@ -185,11 +185,11 @@ int main(void) {
         calctemp(ADC_0_get_conversion(ADC_MUXPOS_TEMPSENSE_gc) >> 5);
         temp = ((int)(1.00 * (ADC_0_get_conversion(6) >> 5))) + atemp;
         if (temp > 55) {
-            SET_PIN(HOT_LED);
+            SET_PIN(RED_LED);
         } else {
-            CLR_PIN(HOT_LED);
+            CLR_PIN(RED_LED);
         }
-        CLR_PIN(HEATING_LED);
+        CLR_PIN(WHITE_LED);
 
         if (btnignore) {
             // Button is ignored for btnignore * 100 ms
@@ -225,14 +225,14 @@ int main(void) {
         if (setpoint && temp < setpoint - 15) {
             // blink white while heating
             if (cycles > 4) {
-                SET_PIN(HEATING_LED);
+                SET_PIN(WHITE_LED);
             } else {
-                CLR_PIN(HEATING_LED);
+                CLR_PIN(WHITE_LED);
             }
         }
 
         if (setpoint && temp >= setpoint - 15) {
-            SET_PIN(HEATING_LED);
+            SET_PIN(WHITE_LED);
         }
 
         // Calculate heating time
@@ -314,7 +314,7 @@ int main(void) {
                 standby              = 0;
             } else if (!setpoint) {
                 // Turned off or no previous setpoint: Just flash once
-                SET_PIN(HEATING_LED);
+                SET_PIN(WHITE_LED);
             }
             // reset the counters
             idle_counter_seconds = 0;

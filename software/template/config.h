@@ -3,7 +3,7 @@
 typedef int32_t REAL;
 
 // Maximum allowed duty cycle. Do not set this to more than 100!
-static const uint8_t MAX_DUTY_CYCLE = 90u;
+#define MAX_DUTY_CYCLE 90u
 
 // If defined, use a PID
 // #define PID
@@ -22,3 +22,7 @@ static const REAL Kd = (REAL)0.5;
 #define CLR_DIR(NAME) NAME##_PORT.DIRCLR = NAME##_PIN;
 #define SET_PIN(NAME) NAME##_PORT.OUTSET = NAME##_PIN;
 #define CLR_PIN(NAME) NAME##_PORT.OUTCLR = NAME##_PIN;
+
+#if MAX_DUTY_CYCLE >= 100
+#error MAX_DUTY_CYCLE must not be greater than 99
+#endif

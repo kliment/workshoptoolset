@@ -269,33 +269,37 @@ int main(void) {
             // Reset 100ms counter
             cycles = 0;
 
-            if (idlesecs && idle_counter_seconds < idlesecs) {
-                idle_counter_seconds++;
-                // If idle-off is activated and the timeout is reached,
-                // disable heating and set standby
-                if (idle_counter_seconds == idlesecs) {
-                    oldsetpoint = setpoint;
-                    setpoint    = 0;
-                    standby     = 1;
-                }
-            }
-
-            if (offmins && off_counter_minutes < offmins) {
-                // If we turn off after some time and haven't reached that time yet
-                off_counter_seconds++;
-                if (off_counter_seconds == 60) {
-                    off_counter_minutes++;
-                    if (off_counter_minutes == offmins) {
-                        // If the time is reached, disable heating without setting standby
+            if (setpoint) {
+                if (idlesecs && idle_counter_seconds < idlesecs) {
+                    idle_counter_seconds++;
+                    // If idle-off is activated and the timeout is reached,
+                    // disable heating and set standby
+                    if (idle_counter_seconds == idlesecs) {
                         oldsetpoint = setpoint;
                         setpoint    = 0;
-                        standby     = 0;
+                        standby     = 1;
                     }
+                } else if (!idlesecs) {
+                    idle_counter_seconds = 0;
                 }
-            } else if (!offmins) {
-                // If idle-off is not activated or we reached it,
-                // we can reset the counter
-                off_counter_minutes = off_counter_seconds = 0;
+
+                if (offmins && off_counter_minutes < offmins) {
+                    // If we turn off after some time and haven't reached that time yet
+                    off_counter_seconds++;
+                    if (off_counter_seconds == 60) {
+                        off_counter_minutes++;
+                        if (off_counter_minutes == offmins) {
+                            // If the time is reached, disable heating without setting standby
+                            oldsetpoint = setpoint;
+                            setpoint    = 0;
+                            standby     = 0;
+                        }
+                    }
+                } else if (!offmins) {
+                    // If idle-off is not activated or we reached it,
+                    // we can reset the counter
+                    off_counter_minutes = off_counter_seconds = 0;
+                }
             }
         }
 
@@ -308,16 +312,14 @@ int main(void) {
                 // so do that
                 setpoint             = oldsetpoint;
                 standby              = 0;
-                idle_counter_seconds = 0;
             } else if (!setpoint) {
                 // Turned off or no previous setpoint: Just flash once
                 SET_PIN(HEATING_LED);
-            } else {
-                // just reset the counters
-                idle_counter_seconds = 0;
-                off_counter_seconds  = 0;
-                off_counter_minutes  = 0;
             }
+            // reset the counters
+            idle_counter_seconds = 0;
+            off_counter_seconds  = 0;
+            off_counter_minutes  = 0;
         }
     }
 }

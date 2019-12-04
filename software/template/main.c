@@ -13,21 +13,46 @@ volatile uint16_t atemp = 0;
 REAL total_error = 0, prev_error = 0;
 #endif
 
-volatile uint16_t setpoint    = 0;
-volatile uint16_t oldsetpoint = 0;
-volatile uint8_t maxduty      = 60;
-volatile uint16_t deftemp     = 320;
-volatile uint16_t idlesecs    = 120;
-volatile uint8_t offmins      = 5;
-volatile int offsettemp       = 0;
+// Temperature setpoint, degrees Celsius
+volatile uint16_t setpoint = 0;
 
-volatile uint8_t btnflag   = 0;
-volatile uint8_t vibrflag  = 0;
-volatile uint8_t btnignore = 0;
+// When the setpoint is set to 0 for idling, this keeps track of the previous value
+uint16_t oldsetpoint = 0;
 
-volatile uint8_t cycles   = 0;
-volatile uint16_t seconds = 0;
-volatile uint8_t minutes  = 0;
+// Maximum duty cycle used by the controller
+volatile uint8_t maxduty = 90;
+
+// Default setpoint
+volatile uint16_t deftemp = 320;
+
+// Start idling after this many seconds
+volatile uint16_t idlesecs = 120;
+
+// Turn heating off after this many minutes. Also deletes the previous setpoint, so
+// picking the handpiece up again will not re-enable heating
+volatile uint8_t offmins = 5;
+
+// Will be removed. Measurement error of the internal temperature sensor.
+volatile int offsettemp = 0;
+
+// Button press was recognized and set by the interrupt
+volatile uint8_t btnflag = 0;
+
+// Movement was detected by the interrupt
+volatile uint8_t vibrflag = 0;
+
+// Button is being ignored for this many 100 ms periods
+uint8_t btnignore = 0;
+
+// Time counter, 100 ms resolution
+uint8_t cycles = 0;
+
+// When off_counter_minutes hits offmins, turn heating off until the button is pressed
+uint16_t off_counter_seconds = 0;
+uint8_t off_counter_minutes  = 0;
+
+// When this hits idlesecs, disable heating until the handpiece is picked up
+uint16_t idle_counter_seconds = 0;
 
 volatile uint8_t datareg[9] = {0};
 //[0] - curtemp C/2 (ro)
@@ -70,17 +95,22 @@ void updateeeprom(uint16_t addr, uint8_t val) {
 static inline void calctemp(uint16_t adcval) {
     // int8_t sigrow_offset = SIGROW.TEMPSENSE1; // Read signed value from signature row
     // uint8_t sigrow_gain = SIGROW.TEMPSENSE0;
+
     // Read unsigned value from signature row
     uint16_t adc_reading = adcval;
+
     // ADC conversion result with 1.1 V internal reference
     uint32_t xtemp = adc_reading - (int8_t)SIGROW.TEMPSENSE1;
     xtemp *= (uint8_t)SIGROW.TEMPSENSE0;  // Result might overflow 16 bit variable (10bit+8bit)
-    xtemp += 0x80;
+
     // Add 1/2 to get correct rounding on division below
-    xtemp >>= 8;
+    xtemp += 0x80;
     // Divide result to get Kelvin
+    xtemp >>= 8;
+    // Convert to degrees Celsius
     uint16_t temperature_in_C = xtemp - 273;
-    atemp                     = temperature_in_C + offsettemp;
+
+    atemp = temperature_in_C + offsettemp;
 }
 
 void pid_harder() {
@@ -99,8 +129,8 @@ void pid_harder() {
     else if (total_error < 0.0f)
         total_error = 0.0f;
 
-    double delta_error = error - prev_error;
-    prev_error         = error;
+    REAL delta_error = error - prev_error;
+    prev_error       = error;
 
     pduty += (Ki * 100.0) * total_error + (Kd / 100.0) * delta_error;
 #endif
@@ -162,6 +192,7 @@ int main(void) {
         CLR_PIN(HEATING_LED);
 
         if (btnignore) {
+            // Button is ignored for btnignore * 100 ms
             btnignore--;
             btnflag = 0;
         } else if (btnflag) {
@@ -178,11 +209,19 @@ int main(void) {
                 } else {
                     setpoint = deftemp;
                 }
+
+                // Not in standby
                 standby = 0;
+
+                // Reset all idle/off counters
+                idle_counter_seconds = 0;
+                off_counter_seconds  = 0;
+                off_counter_minutes  = 0;
             }
             btnignore = 3;  // ignore button presses for 300ms
             btnflag   = 0;
         }
+
         if (setpoint && temp < setpoint - 15) {
             // blink white while heating
             if (cycles > 4) {
@@ -191,9 +230,12 @@ int main(void) {
                 CLR_PIN(HEATING_LED);
             }
         }
+
         if (setpoint && temp >= setpoint - 15) {
             SET_PIN(HEATING_LED);
         }
+
+        // Calculate heating time
         if (setpoint) {
             pid_harder();
             if (duty > MAX_DUTY_CYCLE) {
@@ -202,54 +244,58 @@ int main(void) {
         } else {
             duty = 0;
         }
+
+        // Enable the FET for somewhere between 0 and 100 ms, then turn it off for the rest of the
+        // 100 ms tick
         if (duty > 0) {
             FET_set_level(true);
             _delay_ms(duty);
         }
         FET_set_level(false);
+
+        // Update data for I2C reads
         datareg[0] = (temp >> 1) & 0xff;
         datareg[1] &= ~0x1f;
         datareg[1] = (atemp >> 1) & 0x1f;
         datareg[2] = duty;
         datareg[3] = (setpoint >> 1) & 0xff;
+
+        // Finish the tick
         _delay_ms(100u - duty);
         cycles++;
+
+        // Check if a second has passed
         if (cycles == 10) {
-            seconds++;
-
-            // If idle-off is activated and the timeout is reached,
-            // disable heating and set standby
-            if (idlesecs && seconds >= idlesecs) {
-                oldsetpoint = setpoint;
-                setpoint    = 0;
-                standby     = 1;
-            }
-
             // Reset 100ms counter
             cycles = 0;
-            if (seconds % 60 == 0) {
-                minutes++;
 
-                // If idle-off is not activated or we reached it,
-                // we can reset the counter
-                if (idlesecs == 0 || seconds > idlesecs) {
-                    seconds = 0;
+            if (idlesecs && idle_counter_seconds < idlesecs) {
+                idle_counter_seconds++;
+                // If idle-off is activated and the timeout is reached,
+                // disable heating and set standby
+                if (idle_counter_seconds == idlesecs) {
+                    oldsetpoint = setpoint;
+                    setpoint    = 0;
+                    standby     = 1;
                 }
+            }
 
-                // If we turn off after some time
-                if (offmins) {
-                    // Check minutes against the timeout
-                    if (minutes > offmins) {
-                        // If it's reached, disable heating without setting standby
+            if (offmins && off_counter_minutes < offmins) {
+                // If we turn off after some time and haven't reached that time yet
+                off_counter_seconds++;
+                if (off_counter_seconds == 60) {
+                    off_counter_minutes++;
+                    if (off_counter_minutes == offmins) {
+                        // If the time is reached, disable heating without setting standby
                         oldsetpoint = setpoint;
                         setpoint    = 0;
                         standby     = 0;
-                        minutes     = 0;
                     }
-                } else {
-                    // Discard the minutes counter
-                    minutes = 0;
                 }
+            } else if (!offmins) {
+                // If idle-off is not activated or we reached it,
+                // we can reset the counter
+                off_counter_minutes = off_counter_seconds = 0;
             }
         }
 
@@ -260,15 +306,17 @@ int main(void) {
             if (standby && !setpoint && oldsetpoint) {
                 // standby is active and we can change back to a setpoint,
                 // so do that
-                setpoint = oldsetpoint;
-                standby  = 0;
+                setpoint             = oldsetpoint;
+                standby              = 0;
+                idle_counter_seconds = 0;
             } else if (!setpoint) {
                 // Turned off or no previous setpoint: Just flash once
                 SET_PIN(HEATING_LED);
             } else {
                 // just reset the counters
-                seconds = 0;
-                minutes = 0;
+                idle_counter_seconds = 0;
+                off_counter_seconds  = 0;
+                off_counter_minutes  = 0;
             }
         }
     }

@@ -117,7 +117,8 @@ void updateeeprom(uint16_t addr, uint8_t val) {
     }
 }
 
-static inline void calctemp(uint16_t adcval) {
+static inline void calctemp() {
+    uint16_t adcval = gettempadc() >> 5;
     // int8_t sigrow_offset = SIGROW.TEMPSENSE1; // Read signed value from signature row
     // uint8_t sigrow_gain = SIGROW.TEMPSENSE0;
 
@@ -136,6 +137,7 @@ static inline void calctemp(uint16_t adcval) {
     uint16_t temperature_in_C = xtemp - 273;
 
     atemp = temperature_in_C + offsettemp;
+    temp = ((int)(1.00 * (ADC_0_get_conversion(6) >> 5))) + atemp;
 }
 
 void pid_harder() {
@@ -207,9 +209,9 @@ int main(void) {
     I2C_0_open();
     init_rand();
 
+    calctemp();
+
     while (1) {
-        calctemp(gettempadc() >> 5);
-        temp = ((int)(1.00 * (ADC_0_get_conversion(6) >> 5))) + atemp;
         if (temp > 55) {
             SET_PIN(RED_LED);
         } else {
@@ -279,6 +281,10 @@ int main(void) {
             initial_off = rand() % (101 - duty);
             if(initial_off) {
                 _delay_ms(initial_off);
+
+                // Reading the temperature should happen some time after the FET has been switched off.
+                // Doing it just before turning it maximizes that time.
+                calctemp();
             }
             FET_set_level(true);
             _delay_ms(duty);

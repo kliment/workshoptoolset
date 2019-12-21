@@ -7,8 +7,8 @@
 
 volatile uint8_t duty = 0;
 
-volatile uint16_t temp  = 0;
-volatile uint16_t atemp = 0;
+uint16_t temp  = 0;
+uint16_t atemp = 0;
 
 #ifdef PID
 REAL total_error = 0, prev_error = 0;
@@ -24,7 +24,7 @@ uint16_t oldsetpoint = 0;
 volatile uint8_t maxduty = 90;
 
 // Default setpoint
-volatile uint16_t deftemp = 320;
+uint16_t deftemp = 320;
 
 // Start idling after this many seconds
 volatile uint16_t idlesecs = 120;

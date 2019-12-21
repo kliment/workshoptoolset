@@ -139,7 +139,7 @@ static inline void calctemp() {
     temp  = ((int)(1.00 * (ADC_0_get_conversion(6) >> 5))) + atemp;
 }
 
-void pid_harder() {
+static inline void pid_harder() {
     if (temp > setpoint) {
         duty = 0;
         return;
@@ -174,7 +174,7 @@ void pid_harder() {
 
 // Switches the FET to reach the given duty cycle, using a sigma delta
 // modulator: https://en.wikipedia.org/wiki/Delta-sigma_modulation
-void sigma_delta(uint8_t duty) {
+static inline void sigma_delta(uint8_t duty) {
     static uint8_t error = 0;
     uint8_t iters        = (100u - TEMPERATURE_READ_TIME) / SWITCHING_PERIOD;
 

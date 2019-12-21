@@ -172,6 +172,8 @@ void pid_harder() {
     duty = pduty;
 }
 
+// Switches the FET to reach the given duty cycle, using a sigma delta
+// modulator: https://en.wikipedia.org/wiki/Delta-sigma_modulation
 void sigma_delta(uint8_t duty) {
     static uint8_t error = 0;
     uint8_t iters        = (100u - TEMPERATURE_READ_TIME) / SWITCHING_PERIOD;
@@ -295,8 +297,7 @@ int main(void) {
         calctemp();
 
         // Update data for I2C reads
-        datareg[0] = (temp >> 1) & 0xff;
-        datareg[1] &= ~0x1f;
+        datareg[0] = (temp >> 1);
         datareg[1] = (atemp >> 1) & 0x1f;
         datareg[2] = duty;
         datareg[3] = (setpoint >> 1) & 0xff;
@@ -368,8 +369,6 @@ int main(void) {
 }
 
 ISR(PORTB_PORT_vect) {
-    /* Insert your PORTB interrupt handling code here */
-
     // BTN pressed handler
     btnflag = 1;
 
@@ -378,7 +377,6 @@ ISR(PORTB_PORT_vect) {
 }
 
 ISR(PORTC_PORT_vect) {
-    /* Insert your PORTC interrupt handling code here */
     vibrflag = 1;
     /* Clear interrupt flags */
     VPORTC_INTFLAGS = (1 << 1) | (1 << 3);

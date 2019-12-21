@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "config.h"
 
-volatile uint8_t duty = 0;
+uint8_t duty = 0;
 
 uint16_t temp  = 0;
 uint16_t atemp = 0;

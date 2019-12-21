@@ -163,11 +163,31 @@ void pid_harder() {
 
     if (pduty > maxduty) {
         pduty = maxduty;
+    } else if (pduty > 100) {
+        pduty = 100;
     } else if (pduty < 0) {
         pduty = 0;
     }
 
     duty = pduty;
+}
+
+void sigma_delta(uint8_t duty) {
+    static uint8_t error = 0;
+    uint8_t iters        = (100u - TEMPERATURE_READ_TIME) / SWITCHING_PERIOD;
+
+    while (iters--) {
+        error += duty;
+
+        uint8_t switch_on = (error >= 100);
+        FET_set_level(switch_on);
+        if (switch_on) {
+            SET_PIN(WHITE_LED);
+            error -= 100;
+        }
+        _delay_ms(SWITCHING_PERIOD);
+        CLR_PIN(WHITE_LED);
+    }
 }
 
 int main(void) {
@@ -208,6 +228,10 @@ int main(void) {
     I2C_0_open();
     init_rand();
 
+    // Randomize our initial position in a switching period to even the load on the power supply.
+    _delay_ms(rand() % SWITCHING_PERIOD);
+
+    // Get an initial reading of the temperature.
     calctemp();
 
     while (1) {
@@ -265,30 +289,12 @@ int main(void) {
         // Calculate heating time
         if (setpoint) {
             pid_harder();
-            if (duty > MAX_DUTY_CYCLE) {
-                duty = MAX_DUTY_CYCLE;
-            }
         } else {
             duty = 0;
         }
 
-        // Enable the FET for somewhere between 0 and 100 ms, then turn it off for the rest of the
-        // 100 ms tick. Put this at a random point in the 100 ms cycle to reduce load spikes with
-        // multiple handpieces operating on one supply.
-        uint8_t initial_off = 0u;
-        if (duty > 0) {
-            initial_off = rand() % (101 - duty);
-            if (initial_off) {
-                _delay_ms(initial_off);
-
-                // Reading the temperature should happen some time after the FET has been switched
-                // off. Doing it just before turning it maximizes that time.
-                calctemp();
-            }
-            FET_set_level(true);
-            _delay_ms(duty);
-        }
-        FET_set_level(false);
+        _delay_ms(TEMPERATURE_READ_TIME);
+        calctemp();
 
         // Update data for I2C reads
         datareg[0] = (temp >> 1) & 0xff;
@@ -297,8 +303,10 @@ int main(void) {
         datareg[2] = duty;
         datareg[3] = (setpoint >> 1) & 0xff;
 
+        // Turn the FET on for a bit
+        sigma_delta(duty);
+
         // Finish the tick
-        _delay_ms(100u - duty - initial_off);
         cycles++;
 
         // Check if a second has passed

@@ -2,8 +2,19 @@
 // use a PID or non-integral P-values.
 typedef int32_t REAL;
 
-// Maximum allowed duty cycle. Do not set this to more than 100!
-#define MAX_DUTY_CYCLE 90u
+// Time used to read the temperature, in ms. Also limits the duty cycle to 100-x %.
+#define TEMPERATURE_READ_TIME 10u
+
+// Switching period of the FET, in ms. Higher values lead to more variance on
+// the power supply load, but less switching losses.
+//
+// Should be a divisor of (100 - TEMPERATURE_READ_TIME), or the timing will be
+// off.
+#define SWITCHING_PERIOD 5u
+
+#if ((100 - TEMPERATURE_READ_TIME) % SWITCHING_PERIOD) != 0
+#warning Switching period does not divide cycle time
+#endif
 
 // If defined, use a PID
 // #define PID

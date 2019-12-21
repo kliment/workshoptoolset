@@ -225,7 +225,7 @@ static inline void TWI_SlaveReadHandler() {
             }
         } else if (recv == 2) {
             // setting maxpower
-            if (data < MAX_DUTY_CYCLE) {
+            if (data < 100) {
                 datareg[4] = data;
                 maxduty    = data;
                 updateeeprom(1, data);

@@ -182,11 +182,9 @@ void sigma_delta(uint8_t duty) {
         uint8_t switch_on = (error >= 100);
         FET_set_level(switch_on);
         if (switch_on) {
-            SET_PIN(WHITE_LED);
             error -= 100;
         }
         _delay_ms(SWITCHING_PERIOD);
-        CLR_PIN(WHITE_LED);
     }
 }
 

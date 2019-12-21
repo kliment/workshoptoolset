@@ -276,8 +276,10 @@ int main(void) {
         // multiple handpieces operating on one supply.
         uint8_t initial_off = 0u;
         if (duty > 0) {
-            initial_off = rand() % (100 - duty);
-            _delay_ms(initial_off);
+            initial_off = rand() % (101 - duty);
+            if(initial_off) {
+                _delay_ms(initial_off);
+            }
             FET_set_level(true);
             _delay_ms(duty);
         }

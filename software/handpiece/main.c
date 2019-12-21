@@ -92,12 +92,11 @@ static adc_result_t gettempadc() {
 }
 
 static uint8_t get_random_bit() {
-    while(1) {
-        uint8_t a = gettempadc() & 1,
-                b = gettempadc() & 1;
-        if(a < b) {
+    while (1) {
+        uint8_t a = gettempadc() & 1, b = gettempadc() & 1;
+        if (a < b) {
             return 0u;
-        } else if(a > b) {
+        } else if (a > b) {
             return 1u;
         }
     }
@@ -105,7 +104,7 @@ static uint8_t get_random_bit() {
 
 static void init_rand() {
     unsigned int seed = 0;
-    for(uint8_t i = 0; i < 8*sizeof seed; i++) {
+    for (uint8_t i = 0; i < 8 * sizeof seed; i++) {
         seed = seed << 1 | get_random_bit();
     }
     srand(seed);
@@ -137,7 +136,7 @@ static inline void calctemp() {
     uint16_t temperature_in_C = xtemp - 273;
 
     atemp = temperature_in_C + offsettemp;
-    temp = ((int)(1.00 * (ADC_0_get_conversion(6) >> 5))) + atemp;
+    temp  = ((int)(1.00 * (ADC_0_get_conversion(6) >> 5))) + atemp;
 }
 
 void pid_harder() {
@@ -279,11 +278,11 @@ int main(void) {
         uint8_t initial_off = 0u;
         if (duty > 0) {
             initial_off = rand() % (101 - duty);
-            if(initial_off) {
+            if (initial_off) {
                 _delay_ms(initial_off);
 
-                // Reading the temperature should happen some time after the FET has been switched off.
-                // Doing it just before turning it maximizes that time.
+                // Reading the temperature should happen some time after the FET has been switched
+                // off. Doing it just before turning it maximizes that time.
                 calctemp();
             }
             FET_set_level(true);
@@ -348,8 +347,8 @@ int main(void) {
             if (standby && !setpoint && oldsetpoint) {
                 // standby is active and we can change back to a setpoint,
                 // so do that
-                setpoint             = oldsetpoint;
-                standby              = 0;
+                setpoint = oldsetpoint;
+                standby  = 0;
             } else if (!setpoint) {
                 // Turned off or no previous setpoint: Just flash once
                 SET_PIN(WHITE_LED);

@@ -2,6 +2,7 @@
 #define __DELAY_BACKWARD_COMPATIBLE__
 #include <util/delay.h>
 #include <ccp.h>
+#include <stdlib.h>
 #include "config.h"
 
 volatile uint8_t duty = 0;
@@ -84,6 +85,30 @@ static void FLASH_0_write_eeprom_byte(uint16_t eeprom_adr, uint8_t data) {
 
     /* Erase byte and program it with desired value */
     ccp_write_spm((void *)&NVMCTRL.CTRLA, NVMCTRL_CMD_PAGEERASEWRITE_gc);
+}
+
+static adc_result_t gettempadc() {
+    return ADC_0_get_conversion(ADC_MUXPOS_TEMPSENSE_gc);
+}
+
+static uint8_t get_random_bit() {
+    while(1) {
+        uint8_t a = gettempadc() & 1,
+                b = gettempadc() & 1;
+        if(a < b) {
+            return 0u;
+        } else if(a > b) {
+            return 1u;
+        }
+    }
+}
+
+static void init_rand() {
+    unsigned int seed = 0;
+    for(uint8_t i = 0; i < 8*sizeof seed; i++) {
+        seed = seed << 1 | get_random_bit();
+    }
+    srand(seed);
 }
 
 void updateeeprom(uint16_t addr, uint8_t val) {
@@ -180,9 +205,10 @@ int main(void) {
     sei();
     ADC_0_enable();
     I2C_0_open();
+    init_rand();
 
     while (1) {
-        calctemp(ADC_0_get_conversion(ADC_MUXPOS_TEMPSENSE_gc) >> 5);
+        calctemp(gettempadc() >> 5);
         temp = ((int)(1.00 * (ADC_0_get_conversion(6) >> 5))) + atemp;
         if (temp > 55) {
             SET_PIN(RED_LED);
@@ -246,8 +272,12 @@ int main(void) {
         }
 
         // Enable the FET for somewhere between 0 and 100 ms, then turn it off for the rest of the
-        // 100 ms tick
+        // 100 ms tick. Put this at a random point in the 100 ms cycle to reduce load spikes with
+        // multiple handpieces operating on one supply.
+        uint8_t initial_off = 0u;
         if (duty > 0) {
+            initial_off = rand() % (100 - duty);
+            _delay_ms(initial_off);
             FET_set_level(true);
             _delay_ms(duty);
         }
@@ -261,7 +291,7 @@ int main(void) {
         datareg[3] = (setpoint >> 1) & 0xff;
 
         // Finish the tick
-        _delay_ms(100u - duty);
+        _delay_ms(100u - duty - initial_off);
         cycles++;
 
         // Check if a second has passed

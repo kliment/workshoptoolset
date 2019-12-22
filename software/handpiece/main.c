@@ -56,15 +56,15 @@ uint8_t off_counter_minutes  = 0;
 uint16_t idle_counter_seconds = 0;
 
 uint8_t datareg[9] = {0};
-//[0] - curtemp C/2 (ro)
-//[1] - state|atemp C/2 (ro)
-//[2] - duty (ro)
-//[3] - settemp C/2
-//[4] - maxpower (x/15)
-//[5] - defaultt (C/2)
-//[6] - idlesecs(s*10)
-//[7] - offmins (min)
-//[8] - tempoffset (127=0)
+//[0] - tip temperature (C/2) (ro)
+//[1] - attiny temperature (C/2) (ro)
+//[2] - duty cycle (%) (ro)
+//[3] - temperature setpoint (C/2) (rw)
+//[4] - maximum duty cycle (x/15) (rw)
+//[5] - default temperature setpoint (C/2) (rw)
+//[6] - idle seconds (s*10) (rw)
+//[7] - off minutes (min) (rw)
+//[8] - temperature offset (C + 127) (rw)
 
 uint8_t standby = 0;  // 0=off/heating/hot/cooling, 1=standby, vibration wake
 

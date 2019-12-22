@@ -37,7 +37,6 @@
 #define DRIVER_INIT_H_INCLUDED
 
 #include <compiler.h>
-#include <clock_config.h>
 #include <port.h>
 #include <atmel_start_pins.h>
 

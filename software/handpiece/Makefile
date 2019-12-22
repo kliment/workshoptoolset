@@ -72,13 +72,13 @@ $(OUTPUT_FILE_PATH): $(OBJS)
 # Compiler target(s)
 
 
-$(BUILD_DIR)%.o: %.c $(BUILD_DIR) $(BUILD_SUB_DIRS)
+$(BUILD_DIR)%.o: %.c | $(BUILD_DIR) $(BUILD_SUB_DIRS)
 	avr-gcc $(CFLAGS) -x c -c -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -o "$@" "$<"
 
-$(BUILD_DIR)%.o: %.s $(BUILD_DIR) $(BUILD_SUB_DIRS)
+$(BUILD_DIR)%.o: %.s | $(BUILD_DIR) $(BUILD_SUB_DIRS)
 	avr-gcc $(CFLAGS) -x assembler-with-cpp -c -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -o "$@" "$<"
 
-$(BUILD_DIR)%.o: %.S $(BUILD_DIR) $(BUILD_SUB_DIRS)
+$(BUILD_DIR)%.o: %.S | $(BUILD_DIR) $(BUILD_SUB_DIRS)
 	avr-gcc $(CFLAGS) -x assembler-with-cpp -c -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -o "$@" "$<"
 
 # Detect changes in the dependent files and recompile the respective object files.
@@ -91,7 +91,7 @@ endif
 $(BUILD_DIR) $(BUILD_SUB_DIRS):
 	$(MK_DIR) "$@"
 
-$(BUILD_SUB_DIRS): $(BUILD_DIR)
+$(BUILD_SUB_DIRS): | $(BUILD_DIR)
 
 clean:
 	rm -f $(OBJS)
@@ -107,3 +107,4 @@ clean:
 			$(BUILD_DIR_OUTPUT_FILE_NAME).map \
 			$(BUILD_DIR_OUTPUT_FILE_NAME).srec
 
+.PHONY: all clean

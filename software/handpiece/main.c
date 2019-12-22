@@ -1,13 +1,14 @@
-#include <atmel_start.h>
 #define __DELAY_BACKWARD_COMPATIBLE__
 #include <util/delay.h>
 #include <ccp.h>
+#include <stdlib.h>
+#include "driver_init.h"
 #include "config.h"
 
-volatile uint8_t duty = 0;
+uint8_t duty = 0;
 
-volatile uint16_t temp  = 0;
-volatile uint16_t atemp = 0;
+uint16_t temp  = 0;
+uint16_t atemp = 0;
 
 #ifdef PID
 REAL total_error = 0, prev_error = 0;
@@ -20,17 +21,17 @@ volatile uint16_t setpoint = 0;
 uint16_t oldsetpoint = 0;
 
 // Maximum duty cycle used by the controller
-volatile uint8_t maxduty = 90;
+volatile uint8_t maxduty = DEFAULT_MAX_DUTY_CYCLE;
 
 // Default setpoint
-volatile uint16_t deftemp = 320;
+uint16_t deftemp = DEFAULT_TEMPERATURE_SETPOINT;
 
 // Start idling after this many seconds
-volatile uint16_t idlesecs = 120;
+volatile uint16_t idlesecs = DEFAULT_IDLE_SECONDS;
 
 // Turn heating off after this many minutes. Also deletes the previous setpoint, so
 // picking the handpiece up again will not re-enable heating
-volatile uint8_t offmins = 5;
+volatile uint8_t offmins = DEFAULT_OFF_MINUTES;
 
 // Will be removed. Measurement error of the internal temperature sensor.
 volatile int offsettemp = 0;
@@ -54,16 +55,16 @@ uint8_t off_counter_minutes  = 0;
 // When this hits idlesecs, disable heating until the handpiece is picked up
 uint16_t idle_counter_seconds = 0;
 
-volatile uint8_t datareg[9] = {0};
-//[0] - curtemp C/2 (ro)
-//[1] - state|atemp C/2 (ro)
-//[2] - duty (ro)
-//[3] - settemp C/2
-//[4] - maxpower (x/15)
-//[5] - defaultt (C/2)
-//[6] - idlesecs(s*10)
-//[7] - offmins (min)
-//[8] - tempoffset (127=0)
+uint8_t datareg[9] = {0};
+//[0] - tip temperature (C/2) (ro)
+//[1] - attiny temperature (C/2) (ro)
+//[2] - duty cycle (%) (ro)
+//[3] - temperature setpoint (C/2) (rw)
+//[4] - maximum duty cycle (x/15) (rw)
+//[5] - default temperature setpoint (C/2) (rw)
+//[6] - idle seconds (s*10) (rw)
+//[7] - off minutes (min) (rw)
+//[8] - temperature offset (C + 127) (rw)
 
 uint8_t standby = 0;  // 0=off/heating/hot/cooling, 1=standby, vibration wake
 
@@ -86,13 +87,37 @@ static void FLASH_0_write_eeprom_byte(uint16_t eeprom_adr, uint8_t data) {
     ccp_write_spm((void *)&NVMCTRL.CTRLA, NVMCTRL_CMD_PAGEERASEWRITE_gc);
 }
 
+static adc_result_t gettempadc() {
+    return ADC_0_get_conversion(ADC_MUXPOS_TEMPSENSE_gc);
+}
+
+static uint8_t get_random_bit() {
+    while (1) {
+        uint8_t a = gettempadc() & 1, b = gettempadc() & 1;
+        if (a < b) {
+            return 0u;
+        } else if (a > b) {
+            return 1u;
+        }
+    }
+}
+
+static void init_rand() {
+    unsigned int seed = 0;
+    for (uint8_t i = 0; i < 8 * sizeof seed; i++) {
+        seed = seed << 1 | get_random_bit();
+    }
+    srand(seed);
+}
+
 void updateeeprom(uint16_t addr, uint8_t val) {
     if (FLASH_0_read_eeprom_byte(addr) != val) {
         FLASH_0_write_eeprom_byte(addr, val);
     }
 }
 
-static inline void calctemp(uint16_t adcval) {
+static inline void calctemp() {
+    uint16_t adcval = gettempadc() >> 5;
     // int8_t sigrow_offset = SIGROW.TEMPSENSE1; // Read signed value from signature row
     // uint8_t sigrow_gain = SIGROW.TEMPSENSE0;
 
@@ -111,9 +136,10 @@ static inline void calctemp(uint16_t adcval) {
     uint16_t temperature_in_C = xtemp - 273;
 
     atemp = temperature_in_C + offsettemp;
+    temp  = ((int)(1.00 * (ADC_0_get_conversion(6) >> 5))) + atemp;
 }
 
-void pid_harder() {
+static inline void pid_harder() {
     if (temp > setpoint) {
         duty = 0;
         return;
@@ -137,11 +163,32 @@ void pid_harder() {
 
     if (pduty > maxduty) {
         pduty = maxduty;
+    } else if (pduty > 100) {
+        pduty = 100;
     } else if (pduty < 0) {
         pduty = 0;
     }
 
     duty = pduty;
+}
+
+// Switches the FET to reach the given duty cycle, using a sigma delta
+// modulator: https://en.wikipedia.org/wiki/Delta-sigma_modulation
+static inline void sigma_delta(uint8_t duty) {
+    static uint8_t error = 0;
+    uint8_t iters        = (100u - TEMPERATURE_READ_TIME) / SWITCHING_PERIOD;
+
+    while (iters--) {
+        error += duty;
+
+        uint8_t switch_on = (error >= 100);
+        FET_set_level(switch_on);
+        if (switch_on) {
+            error -= 100;
+        }
+        _delay_ms(SWITCHING_PERIOD);
+    }
+    FET_set_level(false);
 }
 
 int main(void) {
@@ -172,7 +219,7 @@ int main(void) {
     datareg[6] = idlesecs;
     datareg[7] = offmins;
     datareg[8] = 127 + offsettemp;
-    atmel_start_init();
+    system_init();
     SET_DIR(RED_LED);
     SET_DIR(WHITE_LED);
     SET_PIN(RED_LED);
@@ -180,10 +227,15 @@ int main(void) {
     sei();
     ADC_0_enable();
     I2C_0_open();
+    init_rand();
+
+    // Randomize our initial position in a switching period to even the load on the power supply.
+    _delay_ms(rand() % SWITCHING_PERIOD);
+
+    // Get an initial reading of the temperature.
+    calctemp();
 
     while (1) {
-        calctemp(ADC_0_get_conversion(ADC_MUXPOS_TEMPSENSE_gc) >> 5);
-        temp = ((int)(1.00 * (ADC_0_get_conversion(6) >> 5))) + atemp;
         if (temp > 55) {
             SET_PIN(RED_LED);
         } else {
@@ -238,30 +290,23 @@ int main(void) {
         // Calculate heating time
         if (setpoint) {
             pid_harder();
-            if (duty > MAX_DUTY_CYCLE) {
-                duty = MAX_DUTY_CYCLE;
-            }
         } else {
             duty = 0;
         }
 
-        // Enable the FET for somewhere between 0 and 100 ms, then turn it off for the rest of the
-        // 100 ms tick
-        if (duty > 0) {
-            FET_set_level(true);
-            _delay_ms(duty);
-        }
-        FET_set_level(false);
+        _delay_ms(TEMPERATURE_READ_TIME);
+        calctemp();
 
         // Update data for I2C reads
-        datareg[0] = (temp >> 1) & 0xff;
-        datareg[1] &= ~0x1f;
+        datareg[0] = (temp >> 1);
         datareg[1] = (atemp >> 1) & 0x1f;
         datareg[2] = duty;
         datareg[3] = (setpoint >> 1) & 0xff;
 
+        // Turn the FET on for a bit
+        sigma_delta(duty);
+
         // Finish the tick
-        _delay_ms(100u - duty);
         cycles++;
 
         // Check if a second has passed
@@ -310,8 +355,8 @@ int main(void) {
             if (standby && !setpoint && oldsetpoint) {
                 // standby is active and we can change back to a setpoint,
                 // so do that
-                setpoint             = oldsetpoint;
-                standby              = 0;
+                setpoint = oldsetpoint;
+                standby  = 0;
             } else if (!setpoint) {
                 // Turned off or no previous setpoint: Just flash once
                 SET_PIN(WHITE_LED);
@@ -325,8 +370,6 @@ int main(void) {
 }
 
 ISR(PORTB_PORT_vect) {
-    /* Insert your PORTB interrupt handling code here */
-
     // BTN pressed handler
     btnflag = 1;
 
@@ -335,7 +378,6 @@ ISR(PORTB_PORT_vect) {
 }
 
 ISR(PORTC_PORT_vect) {
-    /* Insert your PORTC interrupt handling code here */
     vibrflag = 1;
     /* Clear interrupt flags */
     VPORTC_INTFLAGS = (1 << 1) | (1 << 3);

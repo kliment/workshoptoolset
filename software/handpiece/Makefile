@@ -31,7 +31,7 @@ SUB_DIRS += src
 BUILD_SUB_DIRS = $(SUB_DIRS:%=$(BUILD_DIR)%)
 
 # List the object files
-SRC = src/adc_basic.c src/i2c_slave.c main.c atmel_start.c src/driver_init.c src/pwm_basic.c src/protected_io.c
+SRC = src/adc_basic.c src/i2c_slave.c main.c src/driver_init.c src/pwm_basic.c src/protected_io.c
 OBJS = $(SRC:%.c=$(BUILD_DIR)%.o)
 
 # List the dependency files

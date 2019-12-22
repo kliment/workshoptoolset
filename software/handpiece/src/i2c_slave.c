@@ -196,7 +196,7 @@ static inline void TWI_SlaveDataHandler() {
         TWI_SlaveReadHandler();
     }
 }
-extern volatile uint8_t datareg[9];
+extern uint8_t datareg[9];
 extern volatile int setpoint;
 extern volatile int maxduty;
 extern volatile int deftemp;

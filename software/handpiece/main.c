@@ -55,7 +55,7 @@ uint8_t off_counter_minutes  = 0;
 // When this hits idlesecs, disable heating until the handpiece is picked up
 uint16_t idle_counter_seconds = 0;
 
-volatile uint8_t datareg[9] = {0};
+uint8_t datareg[9] = {0};
 //[0] - curtemp C/2 (ro)
 //[1] - state|atemp C/2 (ro)
 //[2] - duty (ro)

@@ -1,8 +1,8 @@
-#include <atmel_start.h>
 #define __DELAY_BACKWARD_COMPATIBLE__
 #include <util/delay.h>
 #include <ccp.h>
 #include <stdlib.h>
+#include "driver_init.h"
 #include "config.h"
 
 uint8_t duty = 0;
@@ -219,7 +219,7 @@ int main(void) {
     datareg[6] = idlesecs;
     datareg[7] = offmins;
     datareg[8] = 127 + offsettemp;
-    atmel_start_init();
+    system_init();
     SET_DIR(RED_LED);
     SET_DIR(WHITE_LED);
     SET_PIN(RED_LED);

@@ -188,6 +188,7 @@ static inline void sigma_delta(uint8_t duty) {
         }
         _delay_ms(SWITCHING_PERIOD);
     }
+    FET_set_level(false);
 }
 
 int main(void) {

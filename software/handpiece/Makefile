@@ -42,7 +42,7 @@ OUTPUT_FILE_NAME := handpiece
 OUTPUT_FILE_PATH = $(OUTPUT_FILE_NAME).elf
 BUILD_DIR_OUTPUT_FILE_NAME = $(BUILD_DIR)$(OUTPUT_FILE_NAME)
 
-DEVICE_FLAGS = -mmcu=attiny816 -B "device/attiny816" -D__tiny816__  -L"device/attiny816/avrxmega3/short-calls"
+DEVICE_FLAGS = -mmcu=attiny816 -Bdevice/attiny816 -D__tiny816__
 
 CFLAGS += $(DEVICE_FLAGS)
 CFLAGS += -DF_CPU=20000000
@@ -51,7 +51,7 @@ CFLAGS += -Os -ffunction-sections
 CFLAGS += -DDEBUG
 CFLAGS += -g3 -Wall -std=gnu99 -Wa,-mgcc-isr 
 
-LDFLAGS += -Wa,-mgcc-isr -Wl,--start-group -lm -Wl,--end-group -Wl,-Map="$(BUILD_DIR_OUTPUT_FILE_NAME)" $(DEVICE_FLAGS) -Llib -Wl,--gc-sections -l:libattiny816.a -flto
+LDFLAGS += -Wa,-mgcc-isr -lm -Wl,-Map="$(BUILD_DIR_OUTPUT_FILE_NAME)" $(DEVICE_FLAGS) -Llib -Wl,--gc-sections -lattiny816 -flto
 
 # All Target
 all: $(SUB_DIRS) $(OUTPUT_FILE_PATH)

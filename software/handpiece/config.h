@@ -1,3 +1,9 @@
+// Default settings - may be changed over I2C
+#define DEFAULT_MAX_DUTY_CYCLE 90
+#define DEFAULT_TEMPERATURE_SETPOINT 320
+#define DEFAULT_IDLE_SECONDS 120
+#define DEFAULT_OFF_MINUTES 5
+
 // Type to use for duty cycle calculations. Change this to float if you want to
 // use a PID or non-integral P-values.
 typedef int32_t REAL;

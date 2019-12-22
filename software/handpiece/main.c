@@ -21,17 +21,17 @@ volatile uint16_t setpoint = 0;
 uint16_t oldsetpoint = 0;
 
 // Maximum duty cycle used by the controller
-volatile uint8_t maxduty = 90;
+volatile uint8_t maxduty = DEFAULT_MAX_DUTY_CYCLE;
 
 // Default setpoint
-uint16_t deftemp = 320;
+uint16_t deftemp = DEFAULT_TEMPERATURE_SETPOINT;
 
 // Start idling after this many seconds
-volatile uint16_t idlesecs = 120;
+volatile uint16_t idlesecs = DEFAULT_IDLE_SECONDS;
 
 // Turn heating off after this many minutes. Also deletes the previous setpoint, so
 // picking the handpiece up again will not re-enable heating
-volatile uint8_t offmins = 5;
+volatile uint8_t offmins = DEFAULT_OFF_MINUTES;
 
 // Will be removed. Measurement error of the internal temperature sensor.
 volatile int offsettemp = 0;

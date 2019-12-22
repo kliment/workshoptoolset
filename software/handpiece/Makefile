@@ -62,8 +62,8 @@ $(OUTPUT_FILE_PATH): $(OBJS)
 	avr-gcc -o $(OUTPUT_FILE_NAME).elf $(OBJS) $(LDFLAGS) 
 	@echo Finished building target: $@
 
-	"avr-objcopy" -O binary "$(OUTPUT_FILE_PATH)" "$(BUILD_DIR_OUTPUT_FILE_NAME).bin"
-	"avr-objcopy" -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(OUTPUT_FILE_PATH)" "$(BUILD_DIR_OUTPUT_FILE_NAME).hex"
+	"avr-objcopy" -O binary "$(OUTPUT_FILE_PATH)" "$(OUTPUT_FILE_NAME).bin"
+	"avr-objcopy" -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(OUTPUT_FILE_PATH)" "$(OUTPUT_FILE_NAME).hex"
 	"avr-objcopy" -j .eeprom --set-section-flags=.eeprom=alloc,load --change-section-lma .eeprom=0 --no-change-warnings \
 			-O binary "$(OUTPUT_FILE_PATH)" "$(BUILD_DIR_OUTPUT_FILE_NAME).eep" || exit 0
 	"avr-objdump" -h -S "$(OUTPUT_FILE_PATH)" > "$(BUILD_DIR_OUTPUT_FILE_NAME).lss"
@@ -100,8 +100,8 @@ clean:
 	rm -f $(OUTPUT_FILE_PATH)
 	rm -f \
 			$(BUILD_DIR_OUTPUT_FILE_NAME).a \
-			$(BUILD_DIR_OUTPUT_FILE_NAME).hex \
-			$(BUILD_DIR_OUTPUT_FILE_NAME).bin \
+			$(OUTPUT_FILE_NAME).hex \
+			$(OUTPUT_FILE_NAME).bin \
 			$(BUILD_DIR_OUTPUT_FILE_NAME).lss \
 			$(BUILD_DIR_OUTPUT_FILE_NAME).eep \
 			$(BUILD_DIR_OUTPUT_FILE_NAME).map \

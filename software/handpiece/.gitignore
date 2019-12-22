@@ -1,0 +1,2 @@
+build
+!device/*/avrxmega3/short-calls/crt*.o

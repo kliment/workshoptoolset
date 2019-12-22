@@ -1,0 +1,19 @@
+﻿---
+BasedOnStyle: Chromium
+AlignConsecutiveAssignments: 'true'
+AlignConsecutiveMacros: 'true'
+AlignOperands: 'true'
+AllowShortBlocksOnASingleLine: 'false'
+AllowShortFunctionsOnASingleLine: Empty
+BinPackArguments: true
+BinPackParameters: true
+ColumnLimit: 100
+IndentWidth: 4
+Language: Cpp
+PointerAlignment: Right
+ReflowComments: 'true'
+SortIncludes: 'false'
+SpaceBeforeAssignmentOperators: 'true'
+UseTab: Never
+
+...

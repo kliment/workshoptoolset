@@ -42,10 +42,10 @@ volatile uint8_t btnflag = 0;
 // Movement was detected by the interrupt
 volatile uint8_t vibrflag = 0;
 
-// Button is being ignored for this many 100 ms periods
+// Button is being ignored for this many cycles
 uint8_t btnignore = 0;
 
-// Time counter, 100 ms resolution
+// Time counter, CYCLE_LENGTH ms resolution
 uint8_t cycles = 0;
 
 // When off_counter_minutes hits offmins, turn heating off until the button is pressed
@@ -176,7 +176,7 @@ static inline void pid_harder() {
 // modulator: https://en.wikipedia.org/wiki/Delta-sigma_modulation
 static inline void sigma_delta(uint8_t duty) {
     static uint8_t error = 0;
-    uint8_t iters        = (100u - TEMPERATURE_READ_TIME) / SWITCHING_PERIOD;
+    uint8_t iters        = (CYCLE_LENGTH - TEMPERATURE_READ_TIME) / SWITCHING_PERIOD;
 
     while (iters--) {
         error += duty;
@@ -229,8 +229,8 @@ int main(void) {
     I2C_0_open();
     init_rand();
 
-    // Randomize our initial position in a switching period to even the load on the power supply.
-    _delay_ms(rand() % SWITCHING_PERIOD);
+    // Randomize our initial position in a cycle to even the load on the power supply.
+    _delay_ms(rand() % CYCLE_LENGTH);
 
     // Get an initial reading of the temperature.
     calctemp();
@@ -310,7 +310,7 @@ int main(void) {
         cycles++;
 
         // Check if a second has passed
-        if (cycles == 10) {
+        if (cycles == (1000 / CYCLE_LENGTH)) {
             // Reset 100ms counter
             cycles = 0;
 

@@ -255,13 +255,13 @@ int main(void) {
                 button_counter++;
             }
             if(!BTN_get_level() || button_counter >= 7) {
-                if (setpoint > 0) {
+                if (setpoint > 0 && button_counter >= 2) {
                     // power off on button press, store current setpoint
                     oldsetpoint = setpoint;
                     setpoint    = 0;
                     standby     = 0;
                     btnignore = 3;  // ignore button presses for 300ms
-                } else if(button_counter >= 7) {
+                } else if(setpoint == 0 && button_counter >= 7) {
                     // enable power, restore setpoint or use default
                     if (oldsetpoint) {
                         setpoint = oldsetpoint;

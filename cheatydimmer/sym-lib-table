@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name dimmer-parts)(type Legacy)(uri ${KIPRJMOD}/dimmer-parts.lib)(options "")(descr ""))
+)

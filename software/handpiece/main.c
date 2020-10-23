@@ -37,15 +37,15 @@ volatile uint8_t offmins = DEFAULT_OFF_MINUTES;
 volatile int offsettemp = 0;
 
 // Button press was recognized and set by the interrupt
-volatile uint8_t btnflag = 0;
+volatile uint8_t button_flag = 0;
 
 // Movement was detected by the interrupt
-volatile uint8_t vibrflag = 0;
+volatile uint8_t vibration_flag = 0;
 
-// Button is being ignored for this many 100 ms periods
+// Button is being ignored for this many cycles
 uint8_t btnignore = 0;
 
-// Time counter, 100 ms resolution
+// Time counter, CYCLE_LENGTH ms resolution
 uint8_t cycles = 0;
 
 // When off_counter_minutes hits offmins, turn heating off until the button is pressed
@@ -176,7 +176,7 @@ static inline void pid_harder() {
 // modulator: https://en.wikipedia.org/wiki/Delta-sigma_modulation
 static inline void sigma_delta(uint8_t duty) {
     static uint8_t error = 0;
-    uint8_t iters        = (100u - TEMPERATURE_READ_TIME) / SWITCHING_PERIOD;
+    uint8_t iters        = (CYCLE_LENGTH - TEMPERATURE_READ_TIME) / SWITCHING_PERIOD;
 
     while (iters--) {
         error += duty;
@@ -192,6 +192,9 @@ static inline void sigma_delta(uint8_t duty) {
 }
 
 int main(void) {
+    // Keep track of how long the button's been pressed
+    uint8_t button_counter = 0;
+
     VREF_CTRLA = VREF_ADC0REFSEL_1V1_gc     /* Voltage reference at 1.1V */
                  | VREF_DAC0REFSEL_0V55_gc; /* Voltage reference at 0.55V */
 
@@ -229,8 +232,8 @@ int main(void) {
     I2C_0_open();
     init_rand();
 
-    // Randomize our initial position in a switching period to even the load on the power supply.
-    _delay_ms(rand() % SWITCHING_PERIOD);
+    // Randomize our initial position in a cycle to even the load on the power supply.
+    _delay_ms(rand() % CYCLE_LENGTH);
 
     // Get an initial reading of the temperature.
     calctemp();
@@ -246,32 +249,38 @@ int main(void) {
         if (btnignore) {
             // Button is ignored for btnignore * 100 ms
             btnignore--;
-            btnflag = 0;
-        } else if (btnflag) {
-            // not ignoring button, first click event:
-            if (setpoint > 0) {
-                // power off on button press, store current setpoint
-                oldsetpoint = setpoint;
-                setpoint    = 0;
-                standby     = 0;
-            } else {
-                // enable power, restore setpoint or use default
-                if (oldsetpoint) {
-                    setpoint = oldsetpoint;
-                } else {
-                    setpoint = deftemp;
-                }
-
-                // Not in standby
-                standby = 0;
-
-                // Reset all idle/off counters
-                idle_counter_seconds = 0;
-                off_counter_seconds  = 0;
-                off_counter_minutes  = 0;
+            button_flag = 0;
+        } else if (button_flag) {
+            if(button_counter < 255) {
+                button_counter++;
             }
-            btnignore = 3;  // ignore button presses for 300ms
-            btnflag   = 0;
+            if(!BTN_get_level() || button_counter >= 7) {
+                if (setpoint > 0 && button_counter >= 2) {
+                    // power off on button press, store current setpoint
+                    oldsetpoint = setpoint;
+                    setpoint    = 0;
+                    standby     = 0;
+                    btnignore = 3;  // ignore button presses for 300ms
+                } else if(setpoint == 0 && button_counter >= 7) {
+                    // enable power, restore setpoint or use default
+                    if (oldsetpoint) {
+                        setpoint = oldsetpoint;
+                    } else {
+                        setpoint = deftemp;
+                    }
+
+                    // Not in standby
+                    standby = 0;
+
+                    // Reset all idle/off counters
+                    idle_counter_seconds = 0;
+                    off_counter_seconds  = 0;
+                    off_counter_minutes  = 0;
+                    btnignore = 3;  // ignore button presses for 300ms
+                }
+                button_flag = 0;
+                button_counter = 0;
+            }
         }
 
         if (setpoint && temp < setpoint - 15) {
@@ -310,7 +319,7 @@ int main(void) {
         cycles++;
 
         // Check if a second has passed
-        if (cycles == 10) {
+        if (cycles == (1000 / CYCLE_LENGTH)) {
             // Reset 100ms counter
             cycles = 0;
 
@@ -349,8 +358,8 @@ int main(void) {
         }
 
         // Check for vibration
-        if (vibrflag) {
-            vibrflag = 0;
+        if (vibration_flag) {
+            vibration_flag = 0;
 
             if (standby && !setpoint && oldsetpoint) {
                 // standby is active and we can change back to a setpoint,
@@ -371,14 +380,14 @@ int main(void) {
 
 ISR(PORTB_PORT_vect) {
     // BTN pressed handler
-    btnflag = 1;
+    button_flag = 1;
 
     /* Clear interrupt flags */
     VPORTB_INTFLAGS = (1 << 4);
 }
 
 ISR(PORTC_PORT_vect) {
-    vibrflag = 1;
+    vibration_flag = 1;
     /* Clear interrupt flags */
     VPORTC_INTFLAGS = (1 << 1) | (1 << 3);
 }

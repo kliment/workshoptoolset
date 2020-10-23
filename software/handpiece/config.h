@@ -18,10 +18,6 @@ typedef int32_t REAL;
 // off.
 #define SWITCHING_PERIOD 5u
 
-#if ((100 - TEMPERATURE_READ_TIME) % SWITCHING_PERIOD) != 0
-#warning Switching period does not divide cycle time
-#endif
-
 // If defined, use a PID
 // #define PID
 
@@ -42,3 +38,10 @@ static const REAL Kd = (REAL)0.5;
 #define CLR_DIR(NAME) NAME##_PORT.DIRCLR = NAME##_PIN;
 #define SET_PIN(NAME) NAME##_PORT.OUTSET = NAME##_PIN;
 #define CLR_PIN(NAME) NAME##_PORT.OUTCLR = NAME##_PIN;
+
+// Do not touch these
+#define CYCLE_LENGTH 100
+#if ((CYCLE_LENGTH - TEMPERATURE_READ_TIME) % SWITCHING_PERIOD) != 0
+#warning Switching period does not divide cycle time
+#endif
+
